@@ -26,7 +26,7 @@ struct TicTacToe {
 
 	move makeRandomMove() {
 		std::mt19937 mt(std::random_device{}());
-		std::uniform_int_distribution<int> dist(0, 3);
+		std::uniform_int_distribution<int> dist(0, 2);
 		move randomMove;
 		randomMove.r = dist(mt);
 		randomMove.c = dist(mt);
