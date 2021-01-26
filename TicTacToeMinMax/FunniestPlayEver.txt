@@ -1,0 +1,73 @@
+Which symbol (X or O, X goes first)? O
+
+ X | 2 | 3
+-----------
+ 4 | 5 | 6
+-----------
+ 7 | 8 | 9
+
+Enter an empty cell (1 - 9): 2
+
+ X | O | 3
+-----------
+ 4 | 5 | 6
+-----------
+ 7 | 8 | 9
+
+Computer is making a move...
+
+ X | O | X
+-----------
+ 4 | 5 | 6
+-----------
+ 7 | 8 | 9
+
+Enter an empty cell (1 - 9): 5
+
+ X | O | X
+-----------
+ 4 | O | 6
+-----------
+ 7 | 8 | 9
+
+Computer is making a move...
+
+ X | O | X
+-----------
+ X | O | 6
+-----------
+ 7 | 8 | 9
+
+Enter an empty cell (1 - 9): 7
+
+ X | O | X
+-----------
+ X | O | 6
+-----------
+ O | 8 | 9
+
+Computer is making a move...
+
+ X | O | X
+-----------
+ X | O | X
+-----------
+ O | 8 | 9
+
+Enter an empty cell (1 - 9): 8
+
+ X | O | X
+-----------
+ X | O | X
+-----------
+ O | O | 9
+
+Computer is making a move...
+
+ X | O | X
+-----------
+ X | O | X
+-----------
+ O | O | X
+
+Tie!

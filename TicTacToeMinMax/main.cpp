@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <array>
-#include <exception>
+#include <random>
 
 struct move {
 	int r, c, score;
@@ -10,42 +10,53 @@ struct move {
 struct TicTacToe {
 	char player{}, computer{};
 
-	std::vector<std::vector<char>> grid;
 	//char grid[3][3]{};
+	//		\/ \/ \/		// slower
+	std::vector<std::vector<char>> grid;
 
 	TicTacToe() {
 
-		grid = std::vector<std::vector<char>>(3, std::vector<char>(3, ' '));
 		//for(int i = 0; i < 3; i++)
 		//	for(int j = 0; j < 3; j++)
 		//		grid[i][j] = ' ';
+		//		\/ \/ \/		// slower
+		grid = std::vector<std::vector<char>>(3, std::vector<char>(3, ' '));
 
+	}
+
+	move makeRandomMove() {
+		std::mt19937 mt(std::random_device{}());
+		std::uniform_int_distribution<int> dist(0, 3);
+		move randomMove;
+		randomMove.r = dist(mt);
+		randomMove.c = dist(mt);
+		return randomMove;
 	}
 
 	bool win() {
 
 		//	Winning configurations:
-		int win_statess[8][3] = {{0, 1, 2}, {3, 4, 5}, {6, 7, 8}, {0, 3, 6}, {1, 4, 7}, {2, 5, 8}, {0, 4, 8}, {2, 4, 6}};
+		//int win_statess[8][3] = {{0, 1, 2}, {3, 4, 5}, {6, 7, 8}, {0, 3, 6}, {1, 4, 7}, {2, 5, 8}, {0, 4, 8}, {2, 4, 6}};
 		//		\/ \/ \/		//	slower
-		//std::vector<std::vector<int>> win_states = {{0, 1, 2}, {3, 4, 5}, {6, 7, 8}, {0, 3, 6}, {1, 4, 7}, {2, 5, 8}, {0, 4, 8}, {2, 4, 6}};
+		std::vector<std::vector<int>> win_states = {{0, 1, 2}, {3, 4, 5}, {6, 7, 8}, {0, 3, 6}, {1, 4, 7}, {2, 5, 8}, {0, 4, 8}, {2, 4, 6}};
 
-		for(int i = 0; i < 3; i++) {
-			int first_r = win_statess[i][0] / 3;
-			int first_c = win_statess[i][0] % 3;
+		//for(int i = 0; i < 3; i++) {
+		//	int first_r = win_statess[i][0] / 3;
+		//	int first_c = win_statess[i][0] % 3;
 		//		\/ \/ \/		//	slower
-		//for(auto i : win_states) {
-		//	int first_r = i[0] / 3;
-		//	int first_c = i[0] % 3;
+		for(auto i : win_states) {
+			int first_r = i[0] / 3;
+			int first_c = i[0] % 3;
 
 			bool win = true;	// Let's assume that there's win, and if there is a contradiction (dowod nie w prost), change it to flalse
 			
-			for(int j = 0; j < 3; j++) {
-				int r = win_statess[i][j] / 3;
-				int c = win_statess[i][j] % 3;
+			//for(int j = 0; j < 3; j++) {
+			//	int r = win_statess[i][j] / 3;
+			//	int c = win_statess[i][j] % 3;
 			//		\/ \/ \/		// slower
-			//for(auto j : i) {
-				//int r = j / 3;
-				//int c = j % 3;
+			for(auto j : i) {
+				int r = j / 3;
+				int c = j % 3;
 
 				//	If the first element in a configuration is empty
 				//		or if elements in a configuration are
@@ -64,21 +75,23 @@ struct TicTacToe {
 	bool tie() {
 		if(win())
 			return false;
-		for(int i = 0; i < 3; i++) {
-			for(int j = 0; j < 3; j++) {
-				if(grid[i][j] == ' ') {
+
+		//for(int i = 0; i < 3; i++) {
+		//	for(int j = 0; j < 3; j++) {
+		//		if(grid[i][j] == ' ') {
+		//			return false;
+		//		}
+		//	}
+		//}
+	//		\/ \/ \/		// slower
+		for (auto i : grid) {
+			for (auto j :  i) {
+				if (j == ' ') {
 					return false;
 				}
 			}
 		}
-	//		\/ \/ \/		// slower
-	//	for (auto i : grid) {
-	//		for (auto j :  i) {
-	//			if (j == ' ') {
-	//				return false;
-	//			}
-	//		}
-	//	}
+
 		return true;
 	}
 
@@ -173,6 +186,9 @@ struct TicTacToe {
 	}
 
 	void play() {
+
+		int turnNr{0};
+
 		while (true) {
 			std::cout << "Which symbol (X or O, X goes first)? ";
 			std::cin >> player;
@@ -187,13 +203,16 @@ struct TicTacToe {
 		computer = player == 'X' ? 'O' : 'X';
 		
 		if (player == 'O') {
-			computer_move();
+			std::cout << "Computer is making a move...\n";
+			grid[makeRandomMove().r][makeRandomMove().c] = computer;
+			turnNr++;
 		}
 		
 		print();
-		
+
 		while (true) {
 			player_move();
+			turnNr++;
 			print();
 			
 			if (win()) {
@@ -205,7 +224,35 @@ struct TicTacToe {
 			}
 			
 			std::cout << "Computer is making a move...\n";
-			computer_move();
+
+			if (turnNr > 1) {
+				computer_move();
+			} else {
+				// Find player's first move:
+				move playerFirstMove{};
+				for(int i = 0; i < 3; i++)
+					for(int j = 0; j < 3; j++)
+						if(grid[i][j] == player) {
+							playerFirstMove.r = i;
+							playerFirstMove.c = j;
+						}
+
+				std::mt19937 mt(std::random_device{}());
+				std::uniform_int_distribution<int> dist(0, 1);
+				switch(playerFirstMove.r * 3 + playerFirstMove.c) {
+					case 0: grid[2][2] = computer; break;
+					case 1: grid[2][1] = computer; break;
+					case 2: grid[2][0] = computer; break;
+					case 3: grid[1][2] = computer; break;
+					case 4: grid[2 * dist(mt)][2 * dist(mt)] = computer; break;
+					case 5: grid[1][0] = computer; break;
+					case 6: grid[0][2] = computer; break;
+					case 7: grid[0][1] = computer; break;
+					case 8: grid[0][0] = computer; break;
+					default: computer_move(); break;
+				};
+			}
+			
 			print();
 			
 			if (win()) {
