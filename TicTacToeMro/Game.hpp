@@ -26,8 +26,7 @@ namespace mro {
 		const float dt = 1.0f / 60.0f;
 		sf::Clock _clock; // handles framerate
 
-		// This will be using in different states to access
-		//		to all different pices of game data:
+		// This will be using in different states to access to all different pices of game data:
 		GameDataRef _data = std::make_shared<GameData>();
 
 		void Run(); // will be called to start a game

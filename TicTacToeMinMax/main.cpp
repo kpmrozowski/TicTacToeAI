@@ -58,9 +58,7 @@ struct TicTacToe {
 				int r = j / 3;
 				int c = j % 3;
 
-				//	If the first element in a configuration is empty
-				//		or if elements in a configuration are
-				//		not the same, than there's no win:
+				//	If the first element in a configuration is empty or if elements in a configuration are not the same, than there's no win:
 				if (grid[first_r][first_c] == ' '
 					|| grid[first_r][first_c] != grid[r][c]) {
 					win = false;
@@ -157,13 +155,11 @@ struct TicTacToe {
 		for (int i = 0; i < 3; i++) {
 			for (int j = 0; j < 3; j++) {
 				if (grid[i][j] == ' ') {
-					//	Ai tries to maximize it's score and player
-					//		is tring to minimize AI's score
+					//	Ai tries to maximize it's score and player is tring to minimize AI's score
 					grid[i][j] = maximizing_player ? computer : player;
 					move board_state = minimax(!maximizing_player);
 					if (maximizing_player) {
-						//	if the move is better than the move we'd
-						//		already found or if we haven't found it yet:
+						//	if the move is better than the move we'd already found or if we haven't found it yet:
 						if (board_state.score > best_move.score) {
 							// best move is the found one:
 							best_move.score = board_state.score;

@@ -10,7 +10,9 @@
 #include <iostream>
 
 namespace mro {
-	GameState::GameState(GameDataRef data) : _data(data) {}
+	GameState::GameState(GameDataRef data): _data(data) {
+		grid = std::vector<std::vector<int>>(3, std::vector<int>(3, -1));
+	}
 
 	void GameState::Init() {
 		gameState = STATE_PLAYING;
@@ -38,7 +40,7 @@ namespace mro {
 
 		for(int x = 0; x < 3; x++)
 			for(int y = 0; y < 3; y++)
-				_gridArray[x][y] = EMPTY_PIECE;
+				grid[x][y] = EMPTY_PIECE;
 	}
 
 	void GameState::HandleInput() {
@@ -144,8 +146,8 @@ namespace mro {
 			row = 3;
 		}
 
-		if(_gridArray[column - 1][row - 1] == EMPTY_PIECE) {
-			_gridArray[column - 1][row - 1] = turn;
+		if(grid[column - 1][row - 1] == EMPTY_PIECE) {
+			grid[column - 1][row - 1] = turn;
 
 			if(PLAYER_PIECE == turn) {
 				_gridPieces[column - 1][row - 1].setTexture(this->_data->assets.GetTexture("X Piece"));
@@ -170,7 +172,7 @@ namespace mro {
 		if(STATE_WON != gameState) {
 			gameState = STATE_AI_PLAYING;
 
-			ai->PlacePiece(&_gridArray, _gridPieces, &gameState);
+			ai->PlacePiece(grid, _gridPieces, gameState);
 
 			Check3PiecesForMatch(0, 0, 1, 0, 2, 0, AI_PIECE);
 			Check3PiecesForMatch(0, 1, 1, 1, 2, 1, AI_PIECE);
@@ -186,7 +188,7 @@ namespace mro {
 
 		for(int x = 0; x < 3; x++) {
 			for(int y = 0; y < 3; y++) {
-				if(EMPTY_PIECE != _gridArray[x][y]) {
+				if(EMPTY_PIECE != grid[x][y]) {
 					emptyNum--;
 				}
 			}
@@ -207,7 +209,7 @@ namespace mro {
 	}
 
 	void GameState::Check3PiecesForMatch(int x1, int y1, int x2, int y2, int x3, int y3, int pieceToCheck) {
-		if(pieceToCheck == _gridArray[x1][y1] && pieceToCheck == _gridArray[x2][y2] && pieceToCheck == _gridArray[x3][y3]) {
+		if(pieceToCheck == grid[x1][y1] && pieceToCheck == grid[x2][y2] && pieceToCheck == grid[x3][y3]) {
 			std::string winningPieceStr;
 
 			if(O_PIECE == pieceToCheck) {

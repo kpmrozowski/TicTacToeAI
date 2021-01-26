@@ -17,7 +17,7 @@ namespace mro {
 		void Update(float dt);
 		void Draw(float dt);
 
-		int gameState;
+		int gameState{};
 
 		private:
 		void InitGridPieces();	// Loading pices: X and O
@@ -34,11 +34,11 @@ namespace mro {
 		sf::Sprite _gridSprite;
 
 		sf::Sprite _gridPieces[3][3];
-		int _gridArray[3][3];	//	The array keeps track of what is actually in the grid at the moment (EMPTY_PIECE, O_PIECE, X_PIECE)
+		std::vector<std::vector<int>> grid; //	The array keeps track of what is actually in the grid at the moment (EMPTY_PIECE, O_PIECE, X_PIECE)
 
-		int turn;
+		int turn{};
 
-		AI* ai;
+		AI* ai{};
 
 		sf::Clock _clock;
 	};

@@ -48,7 +48,7 @@ namespace mro
 		checkMatchVector.push_back({ 2, 2, 2, 0, 2, 1 });
 	}
 
-	void AI::PlacePiece(int(*gridArray)[3][3], sf::Sprite gridPieces[3][3], int *gameState)
+	void AI::PlacePiece(std::vector<std::vector<int>>& gridArray, sf::Sprite gridPieces[3][3], int& gameState)
 	{
 		try
 		{
@@ -81,20 +81,25 @@ namespace mro
 		}
 		catch (int error)
 		{
-
+			switch(error) {
+				case -1:
+					std:cout << "throw -1: 2 pieces match\n";
+				case -2:
+					std::cout << "throw -2: a piece is empty\n";
+			}
 		}
 
-		*gameState = STATE_PLAYING;
+		gameState = STATE_PLAYING;
 	}
 
-	void AI::CheckSection(int x1, int y1, int x2, int y2, int X, int Y, int pieceToCheck, int(*gridArray)[3][3], sf::Sprite gridPieces[3][3])
+	void AI::CheckSection(int x1, int y1, int x2, int y2, int X, int Y, int pieceToCheck, std::vector<std::vector<int>>& gridArray, sf::Sprite gridPieces[3][3])
 	{
 		// check if 2 pieces match
-		if ((*gridArray)[x1][y1] == pieceToCheck && (*gridArray)[x2][y2] == pieceToCheck)
+		if (gridArray[x1][y1] == pieceToCheck && gridArray[x2][y2] == pieceToCheck)
 		{
-			if (EMPTY_PIECE == (*gridArray)[X][Y])
+			if (EMPTY_PIECE == gridArray[X][Y])
 			{
-				(*gridArray)[X][Y] = AI_PIECE;
+				gridArray[X][Y] = AI_PIECE;
 				gridPieces[X][Y].setTexture(this->_data->assets.GetTexture("O Piece"));
 
 				gridPieces[X][Y].setColor(sf::Color(255, 255, 255, 255));
@@ -104,12 +109,12 @@ namespace mro
 		}
 	}
 
-	void AI::CheckIfPieceIsEmpty(int X, int Y, int(*gridArray)[3][3], sf::Sprite gridPieces[3][3])
+	void AI::CheckIfPieceIsEmpty(int X, int Y, std::vector<std::vector<int>>& gridArray, sf::Sprite gridPieces[3][3])
 	{
 		// check if
-		if (EMPTY_PIECE == (*gridArray)[X][Y])
+		if (EMPTY_PIECE == gridArray[X][Y])
 		{
-			(*gridArray)[X][Y] = AI_PIECE;
+			gridArray[X][Y] = AI_PIECE;
 			gridPieces[X][Y].setTexture(this->_data->assets.GetTexture("O Piece"));
 
 			gridPieces[X][Y].setColor(sf::Color(255, 255, 255, 255));
