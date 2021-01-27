@@ -6,14 +6,14 @@
 #include "Game.hpp"
 #include "Move.hpp"
 
-namespace mro
-{
-	class AI
-	{
-	public:
+namespace mro {
+	class AI {
+		public:
 		AI(int playerPiece, GameDataRef data);
 
-		void PlacePiece(std::vector<std::vector<int>>& gridArray, sf::Sprite gridPieces[3][3], int& gameState);
+		void PlacePiece(std::vector<std::vector<int>>& gridArray, sf::Sprite gridPieces[3][3], int& gameState, int& turn);
+
+		void CheckAndPlace(int X, int Y, std::vector<std::vector<int>>& gridArray, sf::Sprite gridPieces[3][3], int turn);
 
 		bool win(std::vector<std::vector<int>>& gridArray);
 
@@ -21,15 +21,12 @@ namespace mro
 
 		Move minimax(std::vector<std::vector<int>>& gridArray, bool maximizing_player = true);
 
-		void CheckAndPlace(int X, int Y, std::vector<std::vector<int>>& gridArray, sf::Sprite gridPieces[3][3]);
-
-	private:
+		private:
 		int aiPiece;
 		int playerPiece;
 
 		std::vector<std::vector<int>> checkMatchVector{};
 
 		GameDataRef _data;
-
 	};
 }

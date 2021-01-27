@@ -9,7 +9,7 @@ namespace mro
 	class GameOverState : public State
 	{
 	public:
-		GameOverState(GameDataRef data);
+		GameOverState(GameDataRef data, int playerPiece);
 
 		void Init();
 
@@ -18,6 +18,7 @@ namespace mro
 		void Draw(float dt);
 
 	private:
+		int PLAYER_PIECE;
 		GameDataRef _data;
 
 		sf::Sprite _retryButton;

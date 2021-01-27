@@ -8,15 +8,18 @@
 using namespace std;
 
 namespace mro {
-	AI::AI(int playerPiece, GameDataRef data) {
+	AI::AI(int PLAYER_PIECE, GameDataRef data) {
 		this->_data = data;
 
-		this->playerPiece = playerPiece;
+		this->playerPiece = PLAYER_PIECE;
 
-		if(O_PIECE == playerPiece) {
+		if(O_PIECE == PLAYER_PIECE) {
 			aiPiece = X_PIECE;
-		} else {
+			std::cout << "aiPiece = X_PIECE";
+		}
+		if(X_PIECE == PLAYER_PIECE) {
 			aiPiece = O_PIECE;
+			std::cout << "aiPiece = O_PIECE";
 		}
 
 		checkMatchVector.push_back({0, 2, 1, 2, 2, 2});
@@ -45,12 +48,12 @@ namespace mro {
 		checkMatchVector.push_back({2, 2, 2, 0, 2, 1});
 	}
 
-	void AI::PlacePiece(std::vector<std::vector<int>>& gridArray, sf::Sprite gridPieces[3][3], int& gameState) {
+	void AI::PlacePiece(std::vector<std::vector<int>>& gridArray, sf::Sprite gridPieces[3][3], int& gameState, int& turn) {
 		try {
 			Move best_move = minimax(gridArray);
 			std::cout << "\nBest move is: (" << best_move.row << ", " << best_move.column << ")";
 			if(best_move.row < 3 && best_move.column < 3 && best_move.row > -1 && best_move.column > -1)
-				CheckAndPlace(best_move.row, best_move.column, gridArray, gridPieces);
+				CheckAndPlace(best_move.row, best_move.column, gridArray, gridPieces, turn);
 
 		} catch(int error) {
 			switch(error) {
@@ -62,6 +65,32 @@ namespace mro {
 			}
 		}
 		gameState = STATE_PLAYING;
+	}
+	void AI::CheckAndPlace(int X, int Y, std::vector<std::vector<int>>& gridArray, sf::Sprite gridPieces[3][3], int turn) {
+		try {
+			std::cout << "\nprint(gridArray[" << X << "][" << Y << "])"
+						 << "\n"; /////
+			if(EMPTY_PIECE == gridArray[X][Y]) {
+				std::cout << "A: aiPiece = " << aiPiece;		/////
+				std::cout << "\nA: turn = " << turn << "\n"; /////
+				gridArray[X][Y] = turn;
+				GameState::print(gridArray); ////
+
+				gridPieces[X][Y].setTexture(_data->assets.GetTexture(turn == X_PIECE ? "X Piece" : "O Piece"));
+
+				gridPieces[X][Y].setColor(sf::Color(255, 255, 255, 255));
+
+				for(int x = 0; x < 3; x++) {
+					for(int y = 0; y < 3; y++) {
+						_data->window.draw(gridPieces[x][y]);
+					}
+				}
+
+				_data->window.display();
+
+				throw -2;
+			}
+		} catch(int error) {}
 	}
 
 	bool AI::win(std::vector<std::vector<int>>& gridArray) {
@@ -128,7 +157,7 @@ namespace mro {
 			for(int j = 0; j < 3; j++) {
 				if(gridArray[i][j] == -1) {
 					//	Ai tries to maximize it's score and player is tring to minimize AI's score
-					gridArray[i][j] = maximizing_player ? AI_PIECE : PLAYER_PIECE;
+					gridArray[i][j] = maximizing_player ? aiPiece : playerPiece;
 					//print();	uncomment to see AI's analizes
 					Move board_state = minimax(gridArray, !maximizing_player);
 					if(maximizing_player) {
@@ -153,19 +182,4 @@ namespace mro {
 		}
 		return best_move;
 	}
-
-	void AI::CheckAndPlace(int X, int Y, std::vector<std::vector<int>>& gridArray, sf::Sprite gridPieces[3][3]) {
-		try {
-			if(EMPTY_PIECE == gridArray[X][Y]) {
-				gridArray[X][Y] = AI_PIECE;
-				gridPieces[X][Y].setTexture(this->_data->assets.GetTexture("O Piece"));
-
-				gridPieces[X][Y].setColor(sf::Color(255, 255, 255, 255));
-
-
-				throw -2;
-			}
-		} catch(int error) {}
-	}
-
 }

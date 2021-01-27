@@ -1,3 +1,5 @@
+#include <iostream>
+#include <random>
 #include "Game.hpp"
 #include "SplashState.hpp"
 
