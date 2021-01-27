@@ -4,12 +4,10 @@
 #include "State.hpp"
 #include "Game.hpp"
 
-namespace mro
-{
-	class GameOverState : public State
-	{
-	public:
-		GameOverState(GameDataRef data);
+namespace mro {
+	class GameOverState : public State {
+		public:
+		GameOverState(GameDataRef data, int playerPiece);
 
 		void Init();
 
@@ -17,11 +15,11 @@ namespace mro
 		void Update(float dt);
 		void Draw(float dt);
 
-	private:
+		private:
+		int PLAYER_PIECE;
 		GameDataRef _data;
 
 		sf::Sprite _retryButton;
 		sf::Sprite _homeButton;
-
 	};
 }

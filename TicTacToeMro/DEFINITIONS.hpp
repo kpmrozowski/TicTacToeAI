@@ -13,7 +13,8 @@
 
 #define MAIN_MENU_TITLE_FILEPATH "Resources/res/Game Title.png"
 
-#define MAIN_MENU_PLAY_BUTTON "Resources/res/Play Button.png"
+#define MAIN_MENU_PLAY_BUTTON_X "Resources/res/Play Button X.png"
+#define MAIN_MENU_PLAY_BUTTON_O "Resources/res/Play Button O.png"
 #define RESUME_BUTTON "Resources/res/Resume Button.png"
 #define HOME_BUTTON "Resources/res/Home Button.png"
 #define RETRY_BUTTON "Resources/res/Retry Button.png"
@@ -33,8 +34,6 @@
 #define X_PIECE 8
 #define O_PIECE 0
 #define EMPTY_PIECE -1	//	Tracking the empty pice
-#define PLAYER_PIECE X_PIECE	//	Pices displayed afrer win
-#define AI_PIECE O_PIECE	  //	Pices displayed afrer win
 
 #define STATE_PLAYING 98
 #define STATE_PAUSED 97

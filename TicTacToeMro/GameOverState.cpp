@@ -9,7 +9,9 @@
 #include <iostream>
 
 namespace mro {
-	GameOverState::GameOverState(GameDataRef data) : _data(data) {}
+	GameOverState::GameOverState(GameDataRef data, int playerPiece): _data(data) {
+		PLAYER_PIECE = playerPiece;
+	}
 
 	void GameOverState::Init() {
 		this->_data->assets.LoadTexture("Retry Button", RETRY_BUTTON);
@@ -31,7 +33,7 @@ namespace mro {
 
 			if(this->_data->input.IsSpriteClicked(this->_retryButton, sf::Mouse::Left, this->_data->window))
 				// Switch To Main Menu State By Replacing The Game Over State
-				this->_data->machine.AddState(StateRef(new GameState(_data)), true);
+				this->_data->machine.AddState(StateRef(new GameState(_data,PLAYER_PIECE)), true);
 
 			if(this->_data->input.IsSpriteClicked(this->_homeButton, sf::Mouse::Left, this->_data->window))
 				// Switch To Main Menu State By Replacing The Game Over State

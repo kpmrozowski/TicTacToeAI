@@ -11,7 +11,7 @@
 #include <iostream>
 
 namespace mro {
-	GameState::GameState(GameDataRef data) : _data(data) {
+	GameState::GameState(GameDataRef data, int playerPiece) : _data(data) {
 		grid = std::vector<std::vector<int>>(3, std::vector<int>(3, -1));
 	}
 
@@ -64,7 +64,7 @@ namespace mro {
 		if(STATE_DRAW == gameState || STATE_LOSE == gameState || STATE_WON == gameState) {
 			if(this->_clock.getElapsedTime().asSeconds() > TIME_BEFORE_SHOWING_GAME_OVER) {
 				// Switch To Main Menu
-				this->_data->machine.AddState(StateRef(new GameOverState(_data)), true);
+				this->_data->machine.AddState(StateRef(new GameOverState(_data,PLAYER_PIECE)), true);
 			}
 		}
 	}

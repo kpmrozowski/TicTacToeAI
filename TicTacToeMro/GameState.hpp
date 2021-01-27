@@ -9,7 +9,7 @@
 namespace mro {
 	class GameState : public State {
 		public:
-		GameState(GameDataRef data);
+		GameState(GameDataRef data, int playerPiece);
 
 		void Init();
 
@@ -19,6 +19,8 @@ namespace mro {
 		void print();
 
 		int gameState{};
+		int PLAYER_PIECE;
+		int AI_PIECE;
 
 		private:
 		void InitGridPieces();	// Loading pices: X and O

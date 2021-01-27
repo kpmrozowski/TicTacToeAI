@@ -128,7 +128,7 @@ namespace mro {
 			for(int j = 0; j < 3; j++) {
 				if(gridArray[i][j] == -1) {
 					//	Ai tries to maximize it's score and player is tring to minimize AI's score
-					gridArray[i][j] = maximizing_player ? AI_PIECE : PLAYER_PIECE;
+					gridArray[i][j] = maximizing_player ? aiPiece : playerPiece;
 					//print();	uncomment to see AI's analizes
 					Move board_state = minimax(gridArray, !maximizing_player);
 					if(maximizing_player) {
@@ -157,7 +157,7 @@ namespace mro {
 	void AI::CheckAndPlace(int X, int Y, std::vector<std::vector<int>>& gridArray, sf::Sprite gridPieces[3][3]) {
 		try {
 			if(EMPTY_PIECE == gridArray[X][Y]) {
-				gridArray[X][Y] = AI_PIECE;
+				gridArray[X][Y] = aiPiece;
 				gridPieces[X][Y].setTexture(this->_data->assets.GetTexture("O Piece"));
 
 				gridPieces[X][Y].setColor(sf::Color(255, 255, 255, 255));
