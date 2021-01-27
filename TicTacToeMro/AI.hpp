@@ -21,9 +21,9 @@ namespace mro
 
 		Move minimax(std::vector<std::vector<int>>& gridArray, bool maximizing_player = true);
 
-	private:
-		void CheckIfPieceIsEmpty(int X, int Y, std::vector<std::vector<int>>& gridArray, sf::Sprite gridPieces[3][3]);
+		void CheckAndPlace(int X, int Y, std::vector<std::vector<int>>& gridArray, sf::Sprite gridPieces[3][3]);
 
+	private:
 		int aiPiece;
 		int playerPiece;
 

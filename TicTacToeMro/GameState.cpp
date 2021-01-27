@@ -1,5 +1,6 @@
 #pragma once
 
+#include <random>
 #include <sstream>
 #include "GameState.hpp"
 #include "MainMenuState.hpp"
@@ -10,7 +11,7 @@
 #include <iostream>
 
 namespace mro {
-	GameState::GameState(GameDataRef data): _data(data) {
+	GameState::GameState(GameDataRef data) : _data(data) {
 		grid = std::vector<std::vector<int>>(3, std::vector<int>(3, -1));
 	}
 
@@ -157,8 +158,46 @@ namespace mro {
 
 		if(STATE_WON != gameState) {
 			gameState = STATE_AI_PLAYING;
+			std::cout << "\nturnNr = " << turnNr << "\n";
+			if(turnNr > 0) {
+				ai->PlacePiece(grid, _gridPieces, gameState);
+			} else {
+				// Find player's first move:
+				Move playerFirstMove{};
+				for(int i = 0; i < 3; i++)
+					for(int j = 0; j < 3; j++)
+						if(grid[i][j] == PLAYER_PIECE) {
+							playerFirstMove.row = i;
+							playerFirstMove.column = j;
+						}
 
-			ai->PlacePiece(grid, _gridPieces, gameState);
+				//	In the AI's first turn: place "O" on the oposite side of "X"
+				std::mt19937 mt(std::random_device{}());
+				std::uniform_int_distribution<int> dist(0, 1);
+				switch(playerFirstMove.row * 3 + playerFirstMove.column) {
+						break;
+					case 1:
+						ai->CheckAndPlace(2, 1, grid, _gridPieces);
+						break;
+					case 3:
+						ai->CheckAndPlace(1, 2, grid, _gridPieces);
+						break;
+					case 4:
+						ai->CheckAndPlace(2 * dist(mt), 2 * dist(mt), grid, _gridPieces);
+						break;
+					case 5:
+						ai->CheckAndPlace(1, 0, grid, _gridPieces);
+						break;
+					case 7:
+						ai->CheckAndPlace(0, 1, grid, _gridPieces);
+						break;
+					default:
+						ai->CheckAndPlace(1, 1, grid, _gridPieces);
+				};
+				gameState = STATE_PLAYING;
+				turnNr++;
+				print();
+			}
 
 			Check3PiecesForMatch(0, 0, 1, 0, 2, 0, AI_PIECE);
 			Check3PiecesForMatch(0, 1, 1, 1, 2, 1, AI_PIECE);
@@ -192,6 +231,33 @@ namespace mro {
 		}
 
 		std::cout << gameState << std::endl;
+	}
+
+	void GameState::print() {
+		std::cout << '\n';
+
+		for(int i = 0; i < 3; i++) {
+			if(i) {
+				std::cout << "-----------\n";
+			}
+
+			for(int j = 0; j < 3; j++) {
+				if(j)
+					std::cout << "|";
+				std::cout << ' ';
+
+				if(grid[i][j] == -1) {
+					std::cout << 3 * i + j + 1;
+				} else if(grid[i][j] == 0) {
+					std::cout << 'O';
+				} else {
+					std::cout << 'X';
+				}
+				std::cout << ' ';
+			}
+			std::cout << '\n';
+		}
+		std::cout << '\n';
 	}
 
 	void GameState::Check3PiecesForMatch(int x1, int y1, int x2, int y2, int x3, int y3, int pieceToCheck) {

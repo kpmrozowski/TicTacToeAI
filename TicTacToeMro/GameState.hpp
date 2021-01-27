@@ -16,6 +16,7 @@ namespace mro {
 		void HandleInput();
 		void Update(float dt);
 		void Draw(float dt);
+		void print();
 
 		int gameState{};
 
@@ -37,6 +38,7 @@ namespace mro {
 		std::vector<std::vector<int>> grid; //	The array keeps track of what is actually in the grid at the moment (EMPTY_PIECE, O_PIECE, X_PIECE)
 
 		int turn{};
+		int turnNr{0};
 
 		AI* ai{};
 

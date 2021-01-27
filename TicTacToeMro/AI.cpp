@@ -48,9 +48,9 @@ namespace mro {
 	void AI::PlacePiece(std::vector<std::vector<int>>& gridArray, sf::Sprite gridPieces[3][3], int& gameState) {
 		try {
 			Move best_move = minimax(gridArray);
-			std::cout << "\nBest move is: (" << best_move.r << ", " << best_move.c << ")";
-			if(best_move.r < 3 && best_move.c < 3 && best_move.r > -1 && best_move.c > -1)
-				CheckIfPieceIsEmpty(best_move.r, best_move.c, gridArray, gridPieces);
+			std::cout << "\nBest move is: (" << best_move.row << ", " << best_move.column << ")";
+			if(best_move.row < 3 && best_move.column < 3 && best_move.row > -1 && best_move.column > -1)
+				CheckAndPlace(best_move.row, best_move.column, gridArray, gridPieces);
 
 		} catch(int error) {
 			switch(error) {
@@ -61,7 +61,6 @@ namespace mro {
 					std::cout << "\nthrow -2: a piece is empty\n";
 			}
 		}
-
 		gameState = STATE_PLAYING;
 	}
 
@@ -80,7 +79,7 @@ namespace mro {
 				int c = j % 3;
 
 				//	If the first element in a configuration is empty or if elements in a configuration are not the same, than there's no win:
-				if(gridArray[first_r][first_c] == -1 || gridArray[first_r][first_c] != gridArray[r][c]) {
+				if(gridArray[first_r][first_c] == EMPTY_PIECE || gridArray[first_r][first_c] != gridArray[r][c]) {
 					win = false;
 				}
 			}
@@ -95,7 +94,7 @@ namespace mro {
 			return false;
 		for(auto i : gridArray) {
 			for(auto j : i) {
-				if(j == -1) {
+				if(j == EMPTY_PIECE) {
 					return false;
 				}
 			}
@@ -137,15 +136,15 @@ namespace mro {
 						if(board_state.score > best_move.score) {
 							// best move is the found one:
 							best_move.score = board_state.score;
-							best_move.r = i;
-							best_move.c = j;
+							best_move.row = i;
+							best_move.column = j;
 						}
 					} else {
 						// if we search for the worst move for player:
 						if(board_state.score < best_move.score) {
 							best_move.score = board_state.score;
-							best_move.r = i;
-							best_move.c = j;
+							best_move.row = i;
+							best_move.column = j;
 						}
 					}
 					gridArray[i][j] = EMPTY_PIECE; // reset analised pole
@@ -155,17 +154,18 @@ namespace mro {
 		return best_move;
 	}
 
-	void AI::CheckIfPieceIsEmpty(int X, int Y, std::vector<std::vector<int>>& gridArray, sf::Sprite gridPieces[3][3]) {
-		// check if
-		if(EMPTY_PIECE == gridArray[X][Y]) {
-			gridArray[X][Y] = AI_PIECE;
-			gridPieces[X][Y].setTexture(this->_data->assets.GetTexture("O Piece"));
+	void AI::CheckAndPlace(int X, int Y, std::vector<std::vector<int>>& gridArray, sf::Sprite gridPieces[3][3]) {
+		try {
+			if(EMPTY_PIECE == gridArray[X][Y]) {
+				gridArray[X][Y] = AI_PIECE;
+				gridPieces[X][Y].setTexture(this->_data->assets.GetTexture("O Piece"));
 
-			gridPieces[X][Y].setColor(sf::Color(255, 255, 255, 255));
+				gridPieces[X][Y].setColor(sf::Color(255, 255, 255, 255));
 
 
-			throw -2;
-		}
+				throw -2;
+			}
+		} catch(int error) {}
 	}
 
 }
