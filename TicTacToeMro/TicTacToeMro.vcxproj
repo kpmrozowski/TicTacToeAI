@@ -134,6 +134,7 @@
     <ClInclude Include="GameState.hpp" />
     <ClInclude Include="InputManager.hpp" />
     <ClInclude Include="MainMenuState.hpp" />
+    <ClInclude Include="Move.hpp" />
     <ClInclude Include="PauseState.hpp" />
     <ClInclude Include="SplashState.hpp" />
     <ClInclude Include="State.hpp" />

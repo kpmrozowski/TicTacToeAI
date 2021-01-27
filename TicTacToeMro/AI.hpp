@@ -4,6 +4,7 @@
 #include <vector>
 #include <array>
 #include "Game.hpp"
+#include "Move.hpp"
 
 namespace mro
 {
@@ -14,14 +15,19 @@ namespace mro
 
 		void PlacePiece(std::vector<std::vector<int>>& gridArray, sf::Sprite gridPieces[3][3], int& gameState);
 
+		bool win(std::vector<std::vector<int>>& gridArray);
+
+		bool tie(std::vector<std::vector<int>>& gridArray);
+
+		Move minimax(std::vector<std::vector<int>>& gridArray, bool maximizing_player = true);
+
 	private:
-		void CheckSection(int x1, int y1, int x2, int y2, int X, int Y, int pieceToCheck, std::vector<std::vector<int>>& gridArray, sf::Sprite gridPieces[3][3]);
 		void CheckIfPieceIsEmpty(int X, int Y, std::vector<std::vector<int>>& gridArray, sf::Sprite gridPieces[3][3]);
 
 		int aiPiece;
 		int playerPiece;
 
-		std::vector<std::array<int, 6>> checkMatchVector;
+		std::vector<std::vector<int>> checkMatchVector{};
 
 		GameDataRef _data;
 

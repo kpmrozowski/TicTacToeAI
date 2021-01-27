@@ -60,21 +60,7 @@ namespace mro {
 	}
 
 	void GameState::Update(float dt) {
-		if(STATE_DRAW == gameState) {
-			if(this->_clock.getElapsedTime().asSeconds() > TIME_BEFORE_SHOWING_GAME_OVER) {
-				// Switch To Main Menu
-				this->_data->machine.AddState(StateRef(new GameOverState(_data)), true);
-			}
-		}
-
-		if(STATE_LOSE == gameState) {
-			if(this->_clock.getElapsedTime().asSeconds() > TIME_BEFORE_SHOWING_GAME_OVER) {
-				// Switch To Main Menu
-				this->_data->machine.AddState(StateRef(new GameOverState(_data)), true);
-			}
-		}
-
-		if(STATE_WON == gameState) {
+		if(STATE_DRAW == gameState || STATE_LOSE == gameState || STATE_WON == gameState) {
 			if(this->_clock.getElapsedTime().asSeconds() > TIME_BEFORE_SHOWING_GAME_OVER) {
 				// Switch To Main Menu
 				this->_data->machine.AddState(StateRef(new GameOverState(_data)), true);
@@ -120,7 +106,7 @@ namespace mro {
 
 		sf::Vector2f gridSectionSize = sf::Vector2f(gridSize.width / 3, gridSize.height / 3);
 
-		int column, row;
+		int column{}, row{};
 
 		// Check which column the user has clicked
 		if(gridLocalTouchPos.x < gridSectionSize.x) // First Column
