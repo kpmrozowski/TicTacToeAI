@@ -22,9 +22,9 @@ namespace mro {
 		this->_playButtonOuter.setTexture(this->_data->assets.GetTexture("Play Button Outer"));
 		this->_title.setTexture(this->_data->assets.GetTexture("Game Title"));
 
-		this->_playButtonX.setPosition(0, (SCREEN_HEIGHT / 2) - (this->_playButtonX.getGlobalBounds().height / 2));
-		this->_playButtonO.setPosition((SCREEN_WIDTH) - (this->_playButtonO.getGlobalBounds().width), (SCREEN_HEIGHT / 2) - (this->_playButtonO.getGlobalBounds().height / 2));
-		this->_playButtonOuter.setPosition((SCREEN_WIDTH / 2) - (this->_playButtonOuter.getGlobalBounds().width / 2), (SCREEN_HEIGHT / 2) - (this->_playButtonOuter.getGlobalBounds().height / 2));
+		this->_playButtonX.setPosition(SCREEN_WIDTH / 2 - this->_playButtonX.getGlobalBounds().width - XY_BUTTONS_OFFSET / 2, SCREEN_HEIGHT / 2 - this->_playButtonX.getGlobalBounds().height / 2);
+		this->_playButtonO.setPosition(SCREEN_WIDTH /2 + XY_BUTTONS_OFFSET /2, SCREEN_HEIGHT / 2 - this->_playButtonO.getGlobalBounds().height / 2);
+		this->_playButtonOuter.setPosition(SCREEN_WIDTH / 2 - this->_playButtonOuter.getGlobalBounds().width / 2, SCREEN_HEIGHT / 2 - this->_playButtonOuter.getGlobalBounds().height / 2);
 
 		this->_title.setPosition((SCREEN_WIDTH / 2) - (this->_title.getGlobalBounds().width / 2), this->_title.getGlobalBounds().height * 0.1);
 	}

@@ -4,7 +4,7 @@
 #define SCREEN_WIDTH 930
 #define SCREEN_HEIGHT 1030
 
-#define SPLASH_STATE_SHOW_TIME 3
+#define SPLASH_STATE_SHOW_TIME 0.1
 
 #define SPLASH_SCENE_BACKGROUND_FILEPATH "Resources/res/Splash Background.png"
 #define MAIN_MENU_BACKGROUND_FILEPATH "Resources/res/Main Menu Background.png"
@@ -25,6 +25,7 @@
 
 #define X_PIECE_FILEPATH "Resources/res/X.png"
 #define O_PIECE_FILEPATH "Resources/res/O.png"
+#define XY_BUTTONS_OFFSET 20
 #define X_WINNING_PIECE_FILEPATH "Resources/res/X Win.png"
 #define O_WINNING_PIECE_FILEPATH "Resources/res/O Win.png"
 

@@ -5,6 +5,15 @@
 *.suo
 *.user
 *.sln.docstates
+TicTacToeAlfaBeta
+TicTacToeMinMax
+TicTacToeSonar
+TicTacToeSonarComplete
+old
+tests
+TicTacToe.sln
+TicTacToeMinMax.cpp
+TicTacToeMinMax.exe
 
 # Build results
 [Dd]ebug/

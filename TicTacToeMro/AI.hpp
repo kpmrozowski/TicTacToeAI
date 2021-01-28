@@ -13,15 +13,15 @@ namespace mro
 	public:
 		AI(int playerPiece, GameDataRef data);
 
-		void PlacePiece(std::vector<std::vector<int>>& gridArray, sf::Sprite gridPieces[3][3], int& gameState);
+		void PlacePiece(std::vector<std::vector<int>>& gridArray, sf::Sprite gridPieces[3][3], int& gameState, int turn);
 
 		bool win(std::vector<std::vector<int>>& gridArray);
 
 		bool tie(std::vector<std::vector<int>>& gridArray);
 
-		Move minimax(std::vector<std::vector<int>>& gridArray, bool maximizing_player = true);
+		Move minimax(std::vector<std::vector<int>>& gridArray, bool maximizing_player);
 
-		void CheckAndPlace(int X, int Y, std::vector<std::vector<int>>& gridArray, sf::Sprite gridPieces[3][3]);
+		void CheckAndPlace(int X, int Y, std::vector<std::vector<int>>& gridArray, sf::Sprite gridPieces[3][3], int turn);
 
 	private:
 		int aiPiece;

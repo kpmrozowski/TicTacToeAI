@@ -45,12 +45,18 @@ namespace mro {
 		checkMatchVector.push_back({2, 2, 2, 0, 2, 1});
 	}
 
-	void AI::PlacePiece(std::vector<std::vector<int>>& gridArray, sf::Sprite gridPieces[3][3], int& gameState) {
+	void AI::PlacePiece(std::vector<std::vector<int>>& gridArray, sf::Sprite gridPieces[3][3], int& gameState, int turn) {
 		try {
-			Move best_move = minimax(gridArray);
+			Move best_move;
+			std::cout << (aiPiece == turn ? "\n(aiPiece == turn) => true" : "\n(aiPiece == turn) => false");
+			if(aiPiece == turn)
+				best_move = minimax(gridArray, true);
+			else
+				best_move = minimax(gridArray, false);
+				
 			std::cout << "\nBest move is: (" << best_move.row << ", " << best_move.column << ")";
 			if(best_move.row < 3 && best_move.column < 3 && best_move.row > -1 && best_move.column > -1)
-				CheckAndPlace(best_move.row, best_move.column, gridArray, gridPieces);
+				CheckAndPlace(best_move.row, best_move.column, gridArray, gridPieces, turn);
 
 		} catch(int error) {
 			switch(error) {
@@ -129,7 +135,7 @@ namespace mro {
 				if(gridArray[i][j] == -1) {
 					//	Ai tries to maximize it's score and player is tring to minimize AI's score
 					gridArray[i][j] = maximizing_player ? aiPiece : playerPiece;
-					//print();	uncomment to see AI's analizes
+					//print(gridArray);	uncomment to see AI's analizes
 					Move board_state = minimax(gridArray, !maximizing_player);
 					if(maximizing_player) {
 						//	if the move is better than the move we'd already found or if we haven't found it yet:
@@ -154,11 +160,12 @@ namespace mro {
 		return best_move;
 	}
 
-	void AI::CheckAndPlace(int X, int Y, std::vector<std::vector<int>>& gridArray, sf::Sprite gridPieces[3][3]) {
+	void AI::CheckAndPlace(int X, int Y, std::vector<std::vector<int>>& gridArray, sf::Sprite gridPieces[3][3], int turn) {
 		try {
+			std::cout << "\nCheckAndPlace";
 			if(EMPTY_PIECE == gridArray[X][Y]) {
-				gridArray[X][Y] = aiPiece;
-				gridPieces[X][Y].setTexture(this->_data->assets.GetTexture("O Piece"));
+				gridArray[X][Y] = turn;
+				gridPieces[X][Y].setTexture(this->_data->assets.GetTexture(turn == O_PIECE ? "O Piece" : "X Piece"));
 
 				gridPieces[X][Y].setColor(sf::Color(255, 255, 255, 255));
 

@@ -12,12 +12,13 @@
 
 namespace mro {
 	GameState::GameState(GameDataRef data, int playerPiece) : _data(data) {
+		PLAYER_PIECE = playerPiece;
 		grid = std::vector<std::vector<int>>(3, std::vector<int>(3, -1));
 	}
 
 	void GameState::Init() {
 		gameState = STATE_PLAYING;
-		turn = PLAYER_PIECE;
+		turn = X_PIECE;
 
 		this->ai = new AI(turn, this->_data);
 
@@ -42,6 +43,27 @@ namespace mro {
 		for(int x = 0; x < 3; x++)
 			for(int y = 0; y < 3; y++)
 				grid[x][y] = EMPTY_PIECE;
+
+		if(X_PIECE == PLAYER_PIECE) {
+			std::cout << "\n1st: X_PIECE == PLAYER_PIECE";
+			AI_PIECE = O_PIECE;
+			turn = PLAYER_PIECE;
+			this->HandleInput();
+		} else if(O_PIECE == PLAYER_PIECE) {
+			std::cout << "\n1st: O_PIECE == PLAYER_PIECE";
+			AI_PIECE = X_PIECE;
+			turn = AI_PIECE;
+			makeRandomMove();
+			turnNr++;
+			//		\/ \/ \/		// slower
+			// ai->PlacePiece(grid, _gridPieces, gameState);
+			print(grid);
+			std::cout << turn;
+			turn = PLAYER_PIECE;
+			std::cout << turn;
+			gameState = STATE_PLAYING;
+			this->HandleInput();
+		}
 	}
 
 	void GameState::HandleInput() {
@@ -52,19 +74,32 @@ namespace mro {
 				this->_data->window.close();
 
 			if(this->_data->input.IsSpriteClicked(this->_pauseButton, sf::Mouse::Left, this->_data->window)) {
-				// Switch To Game State
+				// Switch To Pause State
 				this->_data->machine.AddState(StateRef(new PauseState(_data)), false);
 			} else if(this->_data->input.IsSpriteClicked(this->_gridSprite, sf::Mouse::Left, this->_data->window))
-				if(STATE_PLAYING == gameState)
-					this->CheckAndPlacePiece();
+				if(STATE_PLAYING == gameState) {
+						turn = PLAYER_PIECE;
+						this->PlayerMove();
+					}
 		}
+	}
+
+	void GameState::makeRandomMove() {
+		gameState = STATE_AI_PLAYING;
+		turn = AI_PIECE;
+		std::mt19937 mt(std::random_device{}());
+		std::uniform_int_distribution<int> dist(0, 2);
+		int row{dist(mt)};
+		int column{dist(mt)};
+		ai->CheckAndPlace(row, column, grid, _gridPieces, turn);
+		std::cout << "\nRandom Move = (" << column << ", " << row << ")";
 	}
 
 	void GameState::Update(float dt) {
 		if(STATE_DRAW == gameState || STATE_LOSE == gameState || STATE_WON == gameState) {
 			if(this->_clock.getElapsedTime().asSeconds() > TIME_BEFORE_SHOWING_GAME_OVER) {
 				// Switch To Main Menu
-				this->_data->machine.AddState(StateRef(new GameOverState(_data,PLAYER_PIECE)), true);
+				this->_data->machine.AddState(StateRef(new GameOverState(_data, PLAYER_PIECE)), true);
 			}
 		}
 	}
@@ -96,7 +131,7 @@ namespace mro {
 		}
 	}
 
-	void GameState::CheckAndPlacePiece() {
+	void GameState::PlayerMove() {
 		sf::Vector2i touchPoint = this->_data->input.GetMousePosition(this->_data->window);
 		sf::FloatRect gridSize = _gridSprite.getGlobalBounds();
 		sf::Vector2f gapOutsideOfGrid = sf::Vector2f((SCREEN_WIDTH - gridSize.width) / 2, (SCREEN_HEIGHT - gridSize.height) / 2);
@@ -134,80 +169,79 @@ namespace mro {
 		}
 
 		if(grid[column - 1][row - 1] == EMPTY_PIECE) {
-			grid[column - 1][row - 1] = turn;
+			grid[column - 1][row - 1] = PLAYER_PIECE;
+			std::cout << "\nPlayerMove(" << column << ", " << row << ")";
+			print(grid);
 
 			if(PLAYER_PIECE == turn) {
-				_gridPieces[column - 1][row - 1].setTexture(this->_data->assets.GetTexture("X Piece"));
-
-				this->CheckHasPlayerWon(turn);
+				_gridPieces[column - 1][row - 1].setTexture(this->_data->assets.GetTexture(PLAYER_PIECE == X_PIECE ? "X Piece" : "O Piece"));
+				CheckWon();
+				turn = AI_PIECE;
+				if(STATE_WON != gameState)
+					this->AiMove();
 			}
 
 			_gridPieces[column - 1][row - 1].setColor(sf::Color(255, 255, 255, 255));
 		}
 	}
 
-	void GameState::CheckHasPlayerWon(int player) {
-		Check3PiecesForMatch(0, 0, 1, 0, 2, 0, player);
-		Check3PiecesForMatch(0, 1, 1, 1, 2, 1, player);
-		Check3PiecesForMatch(0, 2, 1, 2, 2, 2, player);
-		Check3PiecesForMatch(0, 0, 0, 1, 0, 2, player);
-		Check3PiecesForMatch(1, 0, 1, 1, 1, 2, player);
-		Check3PiecesForMatch(2, 0, 2, 1, 2, 2, player);
-		Check3PiecesForMatch(0, 0, 1, 1, 2, 2, player);
-		Check3PiecesForMatch(0, 2, 1, 1, 2, 0, player);
+	void GameState::AiMove() {
+		std::cout << "\nAI is making a move... ";
+		gameState = STATE_AI_PLAYING;
+		turn = AI_PIECE;
+		std::cout << "\nturnNr = " << turnNr;
+		if(turnNr != 0) {
+			ai->PlacePiece(grid, _gridPieces, gameState, turn);
+			turnNr++;
+		} else {
+			turnNr = 1;
+			// Find player's first move:
+			Move playerFirstMove{};
+			for(int i = 0; i < 3; i++)
+				for(int j = 0; j < 3; j++)
+					if(grid[i][j] == PLAYER_PIECE) {
+						playerFirstMove.row = i;
+						playerFirstMove.column = j;
+					}
 
-		if(STATE_WON != gameState) {
-			gameState = STATE_AI_PLAYING;
-			std::cout << "\nturnNr = " << turnNr << "\n";
-			if(turnNr > 0) {
-				ai->PlacePiece(grid, _gridPieces, gameState);
-			} else {
-				// Find player's first move:
-				Move playerFirstMove{};
-				for(int i = 0; i < 3; i++)
-					for(int j = 0; j < 3; j++)
-						if(grid[i][j] == PLAYER_PIECE) {
-							playerFirstMove.row = i;
-							playerFirstMove.column = j;
-						}
-
-				//	In the AI's first turn: place "O" on the oposite side of "X"
-				std::mt19937 mt(std::random_device{}());
-				std::uniform_int_distribution<int> dist(0, 1);
-				switch(playerFirstMove.row * 3 + playerFirstMove.column) {
-						break;
-					case 1:
-						ai->CheckAndPlace(2, 1, grid, _gridPieces);
-						break;
-					case 3:
-						ai->CheckAndPlace(1, 2, grid, _gridPieces);
-						break;
-					case 4:
-						ai->CheckAndPlace(2 * dist(mt), 2 * dist(mt), grid, _gridPieces);
-						break;
-					case 5:
-						ai->CheckAndPlace(1, 0, grid, _gridPieces);
-						break;
-					case 7:
-						ai->CheckAndPlace(0, 1, grid, _gridPieces);
-						break;
-					default:
-						ai->CheckAndPlace(1, 1, grid, _gridPieces);
-				};
-				gameState = STATE_PLAYING;
-				turnNr++;
-				print();
-			}
-
-			Check3PiecesForMatch(0, 0, 1, 0, 2, 0, AI_PIECE);
-			Check3PiecesForMatch(0, 1, 1, 1, 2, 1, AI_PIECE);
-			Check3PiecesForMatch(0, 2, 1, 2, 2, 2, AI_PIECE);
-			Check3PiecesForMatch(0, 0, 0, 1, 0, 2, AI_PIECE);
-			Check3PiecesForMatch(1, 0, 1, 1, 1, 2, AI_PIECE);
-			Check3PiecesForMatch(2, 0, 2, 1, 2, 2, AI_PIECE);
-			Check3PiecesForMatch(0, 0, 1, 1, 2, 2, AI_PIECE);
-			Check3PiecesForMatch(0, 2, 1, 1, 2, 0, AI_PIECE);
+			//	In the AI's first turn: place "O" on the oposite side of "X"
+			std::mt19937 mt(std::random_device{}());
+			std::uniform_int_distribution<int> dist(0, 1);
+			switch(playerFirstMove.row * 3 + playerFirstMove.column) {
+				break;
+				case 1:
+					ai->CheckAndPlace(2, 1, grid, _gridPieces, turn);
+					break;
+				case 3:
+					ai->CheckAndPlace(1, 2, grid, _gridPieces, turn);
+					break;
+				case 4:
+					ai->CheckAndPlace(2 * dist(mt), 2 * dist(mt), grid, _gridPieces, turn);
+					break;
+				case 5:
+					ai->CheckAndPlace(1, 0, grid, _gridPieces, turn);
+					break;
+				case 7:
+					ai->CheckAndPlace(0, 1, grid, _gridPieces, turn);
+					break;
+				default:
+					ai->CheckAndPlace(1, 1, grid, _gridPieces, turn);
+			};
+			gameState = STATE_PLAYING;
 		}
+		print(grid);
+		CheckWon();
+	}
+
+	void GameState::CheckWon() {
+		Check3PiecesForMatch(0, 0, 1, 0, 2, 0, AI_PIECE);
+		Check3PiecesForMatch(0, 1, 1, 1, 2, 1, AI_PIECE);
+		Check3PiecesForMatch(0, 2, 1, 2, 2, 2, AI_PIECE);
+		Check3PiecesForMatch(0, 0, 0, 1, 0, 2, AI_PIECE);
+		Check3PiecesForMatch(1, 0, 1, 1, 1, 2, AI_PIECE);
+		Check3PiecesForMatch(2, 0, 2, 1, 2, 2, AI_PIECE);
+		Check3PiecesForMatch(0, 0, 1, 1, 2, 2, AI_PIECE);
+		Check3PiecesForMatch(0, 2, 1, 1, 2, 0, AI_PIECE);
 
 		int emptyNum = 9;
 
@@ -222,7 +256,12 @@ namespace mro {
 		// check if the game is a draw
 		if(0 == emptyNum && (STATE_WON != gameState) && (STATE_LOSE != gameState)) {
 			gameState = STATE_DRAW;
+			std::cout << "Remis! (*_*)";
 		}
+
+		// check if AI won
+		if(gameState == STATE_WON)
+			std::cout << "AI won! (-_-)";
 
 		// check if the game is over
 		if(STATE_DRAW == gameState || STATE_LOSE == gameState || STATE_WON == gameState) {
@@ -230,10 +269,10 @@ namespace mro {
 			this->_clock.restart();
 		}
 
-		std::cout << gameState << std::endl;
+		//std::cout << gameState << std::endl;
 	}
 
-	void GameState::print() {
+	void GameState::print(std::vector<std::vector<int>>& gridArray) {
 		std::cout << '\n';
 
 		for(int i = 0; i < 3; i++) {
@@ -246,9 +285,9 @@ namespace mro {
 					std::cout << "|";
 				std::cout << ' ';
 
-				if(grid[i][j] == -1) {
+				if(gridArray[i][j] == -1) {
 					std::cout << 3 * i + j + 1;
-				} else if(grid[i][j] == 0) {
+				} else if(gridArray[i][j] == 0) {
 					std::cout << 'O';
 				} else {
 					std::cout << 'X';
@@ -274,12 +313,7 @@ namespace mro {
 			_gridPieces[x2][y2].setTexture(this->_data->assets.GetTexture(winningPieceStr));
 			_gridPieces[x3][y3].setTexture(this->_data->assets.GetTexture(winningPieceStr));
 
-
-			if(PLAYER_PIECE == pieceToCheck) {
-				gameState = STATE_WON;
-			} else {
-				gameState = STATE_LOSE;
-			}
+			gameState = STATE_WON;
 		}
 	}
 }
