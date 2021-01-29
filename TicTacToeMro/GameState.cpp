@@ -55,12 +55,8 @@ namespace mro {
 			turn = AI_PIECE;
 			makeRandomMove();
 			turnNr++;
-			//		\/ \/ \/		// slower
-			// ai->PlacePiece(grid, _gridPieces, gameState);
 			print(grid);
-			std::cout << turn;
 			turn = PLAYER_PIECE;
-			std::cout << turn;
 			gameState = STATE_PLAYING;
 			this->HandleInput();
 		}
@@ -89,10 +85,10 @@ namespace mro {
 		turn = AI_PIECE;
 		std::mt19937 mt(std::random_device{}());
 		std::uniform_int_distribution<int> dist(0, 2);
-		int row{dist(mt)};
 		int column{dist(mt)};
-		ai->CheckAndPlace(row, column, grid, _gridPieces, turn);
-		std::cout << "\nRandom Move = (" << column << ", " << row << ")";
+		int row{dist(mt)};
+		ai->CheckAndPlace(column, row, grid, _gridPieces, turn);
+		std::cout << "\nRandom Move = (" << row << ", " << column << ")";
 	}
 
 	void GameState::Update(float dt) {
@@ -112,7 +108,7 @@ namespace mro {
 
 		for(int x = 0; x < 3; x++) {
 			for(int y = 0; y < 3; y++) {
-				this->_data->window.draw(this->_gridPieces[x][y]);
+				this->_data->window.draw(this->_gridPieces[y][x]);
 			}
 		}
 
@@ -138,50 +134,48 @@ namespace mro {
 
 		sf::Vector2f gridLocalTouchPos = sf::Vector2f(touchPoint.x - gapOutsideOfGrid.x, touchPoint.y - gapOutsideOfGrid.y);
 
-		//std::cout << gridLocalTouchPos.x << ", " << gridLocalTouchPos.y << std::endl;
-
 		sf::Vector2f gridSectionSize = sf::Vector2f(gridSize.width / 3, gridSize.height / 3);
 
-		int column{}, row{};
-
-		// Check which column the user has clicked
-		if(gridLocalTouchPos.x < gridSectionSize.x) // First Column
-		{
-			column = 1;
-		} else if(gridLocalTouchPos.x < gridSectionSize.x * 2) // Second Column
-		{
-			column = 2;
-		} else if(gridLocalTouchPos.x < gridSize.width) // Third Column
-		{
-			column = 3;
-		}
+		int row{}, column{};
 
 		// Check which row the user has clicked
-		if(gridLocalTouchPos.y < gridSectionSize.y) // First Row
+		if(gridLocalTouchPos.x < gridSectionSize.x) // First row
 		{
 			row = 1;
-		} else if(gridLocalTouchPos.y < gridSectionSize.y * 2) // Second Row
+		} else if(gridLocalTouchPos.x < gridSectionSize.x * 2) // Second row
 		{
 			row = 2;
-		} else if(gridLocalTouchPos.y < gridSize.height) // Third Row
+		} else if(gridLocalTouchPos.x < gridSize.width) // Third row
 		{
 			row = 3;
 		}
 
+		// Check which column the user has clicked
+		if(gridLocalTouchPos.y < gridSectionSize.y) // First column
+		{
+			column = 1;
+		} else if(gridLocalTouchPos.y < gridSectionSize.y * 2) // Second column
+		{
+			column = 2;
+		} else if(gridLocalTouchPos.y < gridSize.height) // Third column
+		{
+			column = 3;
+		}
+
 		if(grid[column - 1][row - 1] == EMPTY_PIECE) {
 			grid[column - 1][row - 1] = PLAYER_PIECE;
-			std::cout << "\nPlayerMove(" << column << ", " << row << ")";
+			std::cout << "\nPlayerMove(c" << column << ", r" << row << ")";
 			print(grid);
 
 			if(PLAYER_PIECE == turn) {
-				_gridPieces[column - 1][row - 1].setTexture(this->_data->assets.GetTexture(PLAYER_PIECE == X_PIECE ? "X Piece" : "O Piece"));
+				_gridPieces[row - 1][column - 1].setTexture(this->_data->assets.GetTexture(PLAYER_PIECE == X_PIECE ? "X Piece" : "O Piece"));
 				CheckWon();
 				turn = AI_PIECE;
 				if(STATE_WON != gameState)
 					this->AiMove();
 			}
 
-			_gridPieces[column - 1][row - 1].setColor(sf::Color(255, 255, 255, 255));
+			_gridPieces[row - 1][column - 1].setColor(sf::Color(255, 255, 255, 255));
 		}
 	}
 
@@ -189,7 +183,6 @@ namespace mro {
 		std::cout << "\nAI is making a move... ";
 		gameState = STATE_AI_PLAYING;
 		turn = AI_PIECE;
-		std::cout << "\nturnNr = " << turnNr;
 		if(turnNr != 0) {
 			ai->PlacePiece(grid, _gridPieces, gameState, turn);
 			turnNr++;
@@ -200,14 +193,14 @@ namespace mro {
 			for(int i = 0; i < 3; i++)
 				for(int j = 0; j < 3; j++)
 					if(grid[i][j] == PLAYER_PIECE) {
-						playerFirstMove.row = i;
-						playerFirstMove.column = j;
+						playerFirstMove.column = i;
+						playerFirstMove.row = j;
 					}
 
 			//	In the AI's first turn: place "O" on the oposite side of "X"
 			std::mt19937 mt(std::random_device{}());
 			std::uniform_int_distribution<int> dist(0, 1);
-			switch(playerFirstMove.row * 3 + playerFirstMove.column) {
+			switch(playerFirstMove.column * 3 + playerFirstMove.row) {
 				break;
 				case 1:
 					ai->CheckAndPlace(2, 1, grid, _gridPieces, turn);
@@ -268,8 +261,6 @@ namespace mro {
 			// show game over
 			this->_clock.restart();
 		}
-
-		//std::cout << gameState << std::endl;
 	}
 
 	void GameState::print(std::vector<std::vector<int>>& gridArray) {
@@ -309,9 +300,9 @@ namespace mro {
 				winningPieceStr = "X Winning Piece";
 			}
 
-			_gridPieces[x1][y1].setTexture(this->_data->assets.GetTexture(winningPieceStr));
-			_gridPieces[x2][y2].setTexture(this->_data->assets.GetTexture(winningPieceStr));
-			_gridPieces[x3][y3].setTexture(this->_data->assets.GetTexture(winningPieceStr));
+			_gridPieces[y1][x1].setTexture(this->_data->assets.GetTexture(winningPieceStr));
+			_gridPieces[y2][x2].setTexture(this->_data->assets.GetTexture(winningPieceStr));
+			_gridPieces[y3][x3].setTexture(this->_data->assets.GetTexture(winningPieceStr));
 
 			gameState = STATE_WON;
 		}

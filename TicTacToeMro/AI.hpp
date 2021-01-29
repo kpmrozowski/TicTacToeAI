@@ -10,7 +10,11 @@ namespace mro
 {
 	class AI
 	{
-	public:
+		public:
+		std::vector<Move> movesVect{};
+		std::vector<Move> bestMovesVect{};
+
+
 		AI(int playerPiece, GameDataRef data);
 
 		void PlacePiece(std::vector<std::vector<int>>& gridArray, sf::Sprite gridPieces[3][3], int& gameState, int turn);

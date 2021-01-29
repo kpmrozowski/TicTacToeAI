@@ -4,6 +4,7 @@
 #include "DEFINITIONS.hpp"
 
 #include <iostream>
+#include <algorithm>
 
 using namespace std;
 
@@ -18,7 +19,6 @@ namespace mro {
 		} else {
 			aiPiece = O_PIECE;
 		}
-
 		checkMatchVector.push_back({0, 2, 1, 2, 2, 2});
 		checkMatchVector.push_back({0, 2, 0, 1, 0, 0});
 		checkMatchVector.push_back({0, 2, 1, 1, 2, 0});
@@ -48,23 +48,51 @@ namespace mro {
 	void AI::PlacePiece(std::vector<std::vector<int>>& gridArray, sf::Sprite gridPieces[3][3], int& gameState, int turn) {
 		try {
 			Move best_move;
-			std::cout << (aiPiece == turn ? "\n(aiPiece == turn) => true" : "\n(aiPiece == turn) => false");
+			movesVect.empty();
+			//movesVect.push_back(Move(0));
 			if(aiPiece == turn)
 				best_move = minimax(gridArray, true);
 			else
 				best_move = minimax(gridArray, false);
-				
-			std::cout << "\nBest move is: (" << best_move.row << ", " << best_move.column << ")";
-			if(best_move.row < 3 && best_move.column < 3 && best_move.row > -1 && best_move.column > -1)
+			bestMovesVect.empty();
+			bestMovesVect = std::vector<Move>(9, Move(0));
+			//std::cout << "\n\nAll posibble AI moves:";
+			int licz = 1;
+			for(Move move : movesVect) {
+				if(gridArray[move.column][move.row] == EMPTY_PIECE) {
+					bestMovesVect[move.column + 3 * move.row].score += move.score;
+					bestMovesVect[move.column + 3 * move.row].win += move.win;
+					bestMovesVect[move.column + 3 * move.row].lose += move.lose;
+					bestMovesVect[move.column + 3 * move.row].tie += move.tie;
+					bestMovesVect[move.column + 3 * move.row].column = move.column;
+					bestMovesVect[move.column + 3 * move.row].row = move.row;
+					//std::cout << "\n" << licz << ".\trow = " << move.row+1 << "   column = " << move.column+1 << "   score = " << move.score;
+					licz++;
+				}
+			}
+			std::sort(bestMovesVect.begin(), bestMovesVect.end(), [](const auto& lhs, const auto& rhs) {
+				return lhs.score > rhs.score;
+			});
+			
+			std::cout << "\n\nBest moves (sorted best to worst):";
+			licz = 1;
+			for(Move move : bestMovesVect) {
+				if(gridArray[move.column][move.row] == EMPTY_PIECE)
+					std::cout << "\n|" << move.row + 3 * move.column +1 << "| row=" << move.row+1 << "  column=" << move.column+1 << "  wins=" << move.win << "  tie=" << move.tie << "  lose=" << move.lose << "   score=" << move.score;
+				licz++;
+			}
+
+			std::cout << "\nBest move is: (r" << best_move.row+1 << ", c" << best_move.column+1 << ")";
+			if(best_move.column < 3 && best_move.row < 3 && best_move.column > -1 && best_move.row > -1)
 				CheckAndPlace(best_move.row, best_move.column, gridArray, gridPieces, turn);
 
 		} catch(int error) {
 			switch(error) {
 				case -1:
 				std:
-					cout << "\nthrow -1: 2 pieces match\n";
+					cout << "\nthcolumn -1: 2 pieces match\n";
 				case -2:
-					std::cout << "\nthrow -2: a piece is empty\n";
+					std::cout << "\nthcolumn -2: a piece is empty\n";
 			}
 		}
 		gameState = STATE_PLAYING;
@@ -130,9 +158,9 @@ namespace mro {
 		best_move.score = maximizing_player ? -2 : 2;
 		// -2 and 2 acts just like as -inf and inf
 
-		for(int i = 0; i < 3; i++) {
-			for(int j = 0; j < 3; j++) {
-				if(gridArray[i][j] == -1) {
+		for(int i = 2; i >= 0; i--) {
+			for(int j = 2; j >= 0; j--) {
+				if(gridArray[i][j] == EMPTY_PIECE) {
 					//	Ai tries to maximize it's score and player is tring to minimize AI's score
 					gridArray[i][j] = maximizing_player ? aiPiece : playerPiece;
 					//print(gridArray);	uncomment to see AI's analizes
@@ -144,6 +172,11 @@ namespace mro {
 							best_move.score = board_state.score;
 							best_move.row = i;
 							best_move.column = j;
+							best_move.win = best_move.score == 1 ? 1 : 0;
+							best_move.lose = best_move.score == -1 ? 1 : 0;
+							best_move.tie = best_move.score == 0 ? 1 : 0;
+							if(board_state.score != -1)
+								movesVect.push_back(board_state);
 						}
 					} else {
 						// if we search for the worst move for player:
@@ -151,23 +184,29 @@ namespace mro {
 							best_move.score = board_state.score;
 							best_move.row = i;
 							best_move.column = j;
+							best_move.win = best_move.score == 1 ? 1 : 0;
+							best_move.lose = best_move.score == -1 ? 1 : 0;
+							best_move.tie = best_move.score == 0 ? 1 : 0;
+							if(board_state.score != 1)
+								movesVect.push_back(board_state);
 						}
 					}
 					gridArray[i][j] = EMPTY_PIECE; // reset analised pole
 				}
 			}
 		}
+		//movesVect.push_back(best_move);
 		return best_move;
 	}
 
-	void AI::CheckAndPlace(int X, int Y, std::vector<std::vector<int>>& gridArray, sf::Sprite gridPieces[3][3], int turn) {
+	void AI::CheckAndPlace(int row, int column, std::vector<std::vector<int>>& gridArray, sf::Sprite gridPieces[3][3], int turn) {
 		try {
-			std::cout << "\nCheckAndPlace";
-			if(EMPTY_PIECE == gridArray[X][Y]) {
-				gridArray[X][Y] = turn;
-				gridPieces[X][Y].setTexture(this->_data->assets.GetTexture(turn == O_PIECE ? "O Piece" : "X Piece"));
+			//std::cout << "\nCheckAndPlace";
+			if(EMPTY_PIECE == gridArray[row][column]) {
+				gridArray[row][column] = turn;
+				gridPieces[column][row].setTexture(this->_data->assets.GetTexture(turn == O_PIECE ? "O Piece" : "X Piece"));
 
-				gridPieces[X][Y].setColor(sf::Color(255, 255, 255, 255));
+				gridPieces[column][row].setColor(sf::Color(255, 255, 255, 255));
 
 
 				throw -2;
